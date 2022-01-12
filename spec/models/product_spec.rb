@@ -1,38 +1,61 @@
 require 'rails_helper'
 
 RSpec.describe Product, type: :model do
-  describe 'Validations' do
 
-    before do
-      @category = Category.new(name: 'Furniture')
+  describe "Validations" do
+    before(:each) do
+      @category = Category.new(name:"Test")
+      @category.save
     end
 
-    it 'validates :name, presence: true' do
-      @product = Product.new(name: nil, price:88, quantity:25, category: @category)
-
-      expect(@product).to_not be_valid
-      expect(@product.errors.full_messages).to eq ["Name can't be blank"]
+    it "saves a product with all fields" do
+      @product = Product.new({
+        name: "Plumbus", 
+        price_cents: 9999, 
+        quantity: 69, 
+        category_id: @category[:id]})
+      expect(@product).to be_valid
     end
 
-    it 'validates :price, presence: true' do
-      @product = Product.new(name: 'Comfy Comfy', price:nil, quantity:30, category: @category)
+    it "should validate name" do
+      @product = Product.new({
+        name: nil, 
+        price: 99.99, 
+        quantity: 69, 
+        category_id: @category[:id]})
+        expect(@product).to be_invalid
+        expect(@product.errors.full_messages.include?("Name can't be blank")).to be_truthy
 
-      expect(@product).to_not be_valid
-      expect(@product.errors.full_messages).to eq ["Price cents is not a number", "Price is not a number", "Price can't be blank"]
     end
 
-    it 'validates :quantity, presence: true' do
-      @product = Product.new(name: 'Comfy Comfy', price:888, quantity:nil, category: @category)
+    it "should validate price" do
+      @product = Product.new({ 
+        name: "Gumpus",
+        price_cents: nil,
+        quantity: 69,
+        category_id: @category[:id]})
+        expect(@product).to be_invalid
+        expect(@product.errors.full_messages.include?("Price cents is not a number")).to be_truthy
+      end
 
-      expect(@product).to_not be_valid
-      expect(@product.errors.full_messages).to eq ["Quantity can't be blank"]
+    it "should validate quantity" do
+      @product = Product.new({
+        name: "Plumbus", 
+        price: 9999,
+        quantity: nil, 
+        category_id: @category[:id]})
+        expect(@product).to be_invalid
+        expect(@product.errors.full_messages.include?("Quantity can't be blank")).to be_truthy
     end
 
-    it 'validates :category, presence: true' do
-      @product = Product.new(name: 'Comfy Comfy', price:888, quantity:100, category: nil)
-
-      expect(@product).to_not be_valid
-      expect(@product.errors.full_messages).to eq ["Category can't be blank"]
+    it "should validate category" do
+      @product = Product.new({
+        name: "Gloopnik", 
+        price_cents: 9999, 
+        quantity: 69, 
+        category_id: nil})
+        expect(@product).to be_invalid
+        expect(@product.errors.full_messages.include?("Category can't be blank")).to be_truthy
     end
   end
 end
